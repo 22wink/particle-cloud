@@ -133,6 +133,15 @@
       })();
     </script>
     <script type="module" src="./main.js"></script>
+    <script>
+      // 添加错误处理，帮助诊断模块加载问题
+      window.addEventListener('error', function(e) {
+        if (e.filename && (e.filename.includes('OrbitControls') || e.filename.includes('main.js'))) {
+          console.error('[Module Error]', e.filename, ':', e.message);
+          console.error('[Module Error] Line:', e.lineno, 'Column:', e.colno);
+        }
+      }, true);
+    </script>
   </body>
 </html>
 
