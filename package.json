@@ -1,0 +1,25 @@
+{
+  "name": "particle-cloud",
+  "version": "1.0.0",
+  "description": "Three.js 粒子爱心 + 手势识别演示，支持本地 HTTPS。",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "dev": "nodemon server.js",
+    "prepare-libs": "node scripts/copy-libs.js",
+    "build": "node scripts/copy-libs.js",
+    "postinstall": "npm run prepare-libs",
+    "test": "echo \"No tests defined\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@mediapipe/camera_utils": "^0.3.1675466862",
+    "@mediapipe/hands": "^0.4.1675469240",
+    "express": "^5.2.1",
+    "selfsigned": "^5.2.0",
+    "three": "^0.181.2"
+  }
+}

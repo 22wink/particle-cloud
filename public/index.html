@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <title>手势星云爱心</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="overlay">
+      <!-- <div class="title">手势粒子爱心</div> -->
+      <div class="hint">张开手掌：放大成星云 · 捏合手掌：爱心收缩</div>
+      <div class="status" id="status">等待摄像头授权...</div>
+    </div>
+    <video id="video" autoplay playsinline muted></video>
+    <div id="webgl-container"></div>
+    <script src="./libs/mediapipe/camera_utils.js"></script>
+    <script src="./libs/mediapipe/hands.js"></script>
+    <script src="./libs/mediapipe/hands_solution_packed_assets_loader.js"></script>
+    <script src="./libs/mediapipe/hands_solution_simd_wasm_bin.js"></script>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
+

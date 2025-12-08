@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare local libraries
+        run: npm run prepare-libs
+
+      - name: Verify public/libs structure
+        run: |
+          if [ ! -f "public/libs/three.module.js" ]; then
+            echo "Error: three.module.js not found"
+            exit 1
+          fi
+          if [ ! -f "public/libs/mediapipe/hands.js" ]; then
+            echo "Error: MediaPipe hands.js not found"
+            exit 1
+          fi
+          echo "✓ All required library files are present"
+
+      - name: Build (prepare static assets)
+        run: npm run build
+
+      - name: Archive public folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: public
+          retention-days: 7
+
