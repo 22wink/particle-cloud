@@ -132,6 +132,43 @@
         }
       })();
     </script>
+    <script>
+      // 在加载模块前验证关键文件是否存在
+      (function() {
+        var pathname = window.location.pathname;
+        var lastSlash = pathname.lastIndexOf('/');
+        var basePath = lastSlash >= 0 ? pathname.substring(0, lastSlash + 1) : '/';
+        
+        var checkFile = function(url, name) {
+          return fetch(url)
+            .then(r => {
+              if (!r.ok) {
+                console.error('[File Check]', name, 'HTTP', r.status, r.statusText);
+                return r.text().then(text => {
+                  console.error('[File Check]', name, 'Response:', text.substring(0, 200));
+                });
+              }
+              return r.text().then(text => {
+                var firstLine = text.split('\n')[0];
+                console.log('[File Check]', name, 'OK, first line:', firstLine.substring(0, 50));
+                if (text.length < 100) {
+                  console.warn('[File Check]', name, 'File seems too small:', text.length, 'bytes');
+                  console.warn('[File Check]', name, 'Content:', text);
+                }
+              });
+            })
+            .catch(err => console.error('[File Check]', name, 'Failed:', err));
+        };
+        
+        Promise.all([
+          checkFile(basePath + 'libs/OrbitControls.js', 'OrbitControls.js'),
+          checkFile(basePath + 'libs/three.module.js', 'three.module.js'),
+          checkFile(basePath + 'main.js', 'main.js')
+        ]).then(() => {
+          console.log('[File Check] All files verified, loading main.js...');
+        });
+      })();
+    </script>
     <script type="module">
       // 添加错误处理和模块加载验证
       window.addEventListener('error', function(e) {
@@ -143,8 +180,10 @@
             fetch(e.filename)
               .then(r => r.text())
               .then(text => {
-                console.error('[Module Error] OrbitControls.js first 20 lines:');
-                console.error(text.split('\n').slice(0, 20).join('\n'));
+                console.error('[Module Error] OrbitControls.js file size:', text.length);
+                console.error('[Module Error] OrbitControls.js first 30 lines:');
+                console.error(text.split('\n').slice(0, 30).join('\n'));
+                console.error('[Module Error] OrbitControls.js line 12:', text.split('\n')[11]);
               })
               .catch(err => console.error('[Module Error] Failed to fetch OrbitControls.js:', err));
           }
@@ -154,6 +193,7 @@
       // 动态导入 main.js，添加错误处理
       import('./main.js').catch(function(err) {
         console.error('[Module Error] Failed to load main.js:', err);
+        console.error('[Module Error] Error details:', err.message, err.stack);
         console.error('[Module Error] This might be a GitHub Pages deployment issue.');
         console.error('[Module Error] Please check GitHub Actions build logs to ensure files are deployed correctly.');
       });
