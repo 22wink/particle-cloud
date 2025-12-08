@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
     <title>手势星云爱心</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💕</text></svg>" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -23,28 +24,38 @@
         var lastSlash = pathname.lastIndexOf('/');
         var basePath = lastSlash >= 0 ? pathname.substring(0, lastSlash + 1) : '/';
         
-        // 确保 Module 对象在全局作用域中存在
-        if (typeof Module === 'undefined') {
+        // 确保 Module 对象在全局作用域中存在（使用 window.Module 确保全局访问）
+        if (typeof window.Module === 'undefined') {
           window.Module = {};
+        }
+        // 同时设置 Module（某些脚本可能直接访问 Module）
+        if (typeof Module === 'undefined') {
+          Module = window.Module;
         }
         
         // 设置 locateFile 函数，确保资源文件路径正确
         // 这个函数会被 hands_solution_packed_assets_loader.js 调用
-        Module.locateFile = function(file, prefix) {
+        var locateFileFunc = function(file, prefix) {
           // 如果文件已经在 libs/mediapipe/ 路径中，直接使用
           if (file.indexOf('libs/mediapipe/') === 0) {
             return basePath + file;
           }
           // 否则添加 libs/mediapipe/ 前缀
           var fullPath = basePath + 'libs/mediapipe/' + file;
-          console.log('[MediaPipe] locateFile:', file, '->', fullPath);
+          console.log('[MediaPipe] locateFile called:', file, 'prefix:', prefix, '->', fullPath);
           return fullPath;
         };
         
+        // 同时设置到 window.Module 和 Module
+        window.Module.locateFile = locateFileFunc;
+        Module.locateFile = locateFileFunc;
+        
         // 设置 locateFilePackage（旧版本兼容）
-        Module.locateFilePackage = Module.locateFilePackage || Module.locateFile;
+        window.Module.locateFilePackage = locateFileFunc;
+        Module.locateFilePackage = locateFileFunc;
         
         console.log('[MediaPipe] Module.locateFile configured, basePath:', basePath);
+        console.log('[MediaPipe] Module.locateFile function:', typeof Module.locateFile);
       })();
     </script>
     <script src="./libs/mediapipe/camera_utils.js"></script>
