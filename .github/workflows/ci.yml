@@ -80,7 +80,11 @@ jobs:
           echo "Files in public directory:"
           find public -type f | head -30
           echo "Checking critical files:"
-          ls -lh public/libs/three.module.js public/libs/mediapipe/hands_solution_packed_assets.data || echo "Some files missing"
+          ls -lh public/libs/three.module.js public/libs/OrbitControls.js public/libs/mediapipe/hands_solution_packed_assets.data || echo "Some files missing"
+          echo "Verifying OrbitControls.js content:"
+          head -5 public/libs/OrbitControls.js
+          echo "Verifying three.module.js content:"
+          head -5 public/libs/three.module.js
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

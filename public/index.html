@@ -132,15 +132,31 @@
         }
       })();
     </script>
-    <script type="module" src="./main.js"></script>
-    <script>
-      // 添加错误处理，帮助诊断模块加载问题
+    <script type="module">
+      // 添加错误处理和模块加载验证
       window.addEventListener('error', function(e) {
         if (e.filename && (e.filename.includes('OrbitControls') || e.filename.includes('main.js'))) {
           console.error('[Module Error]', e.filename, ':', e.message);
           console.error('[Module Error] Line:', e.lineno, 'Column:', e.colno);
+          // 如果是 OrbitControls 错误，尝试检查文件内容
+          if (e.filename.includes('OrbitControls')) {
+            fetch(e.filename)
+              .then(r => r.text())
+              .then(text => {
+                console.error('[Module Error] OrbitControls.js first 20 lines:');
+                console.error(text.split('\n').slice(0, 20).join('\n'));
+              })
+              .catch(err => console.error('[Module Error] Failed to fetch OrbitControls.js:', err));
+          }
         }
       }, true);
+      
+      // 动态导入 main.js，添加错误处理
+      import('./main.js').catch(function(err) {
+        console.error('[Module Error] Failed to load main.js:', err);
+        console.error('[Module Error] This might be a GitHub Pages deployment issue.');
+        console.error('[Module Error] Please check GitHub Actions build logs to ensure files are deployed correctly.');
+      });
     </script>
   </body>
 </html>
