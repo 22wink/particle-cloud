@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
     <title>手势星云爱心</title>
     <link rel="stylesheet" href="./styles.css" />
+    <base href="./" />
   </head>
   <body>
     <div id="overlay">
@@ -14,6 +15,22 @@
     </div>
     <video id="video" autoplay playsinline muted></video>
     <div id="webgl-container"></div>
+    <script>
+      // 设置 MediaPipe 资源路径（必须在所有 MediaPipe 脚本之前）
+      (function() {
+        if (typeof Module === 'undefined') {
+          window.Module = {};
+        }
+        // 设置 locateFile 函数，确保资源文件路径正确
+        Module.locateFile = Module.locateFile || function(file, prefix) {
+          // 获取当前页面的基础路径
+          const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+          return basePath + 'libs/mediapipe/' + file;
+        };
+        // 设置 locateFilePackage（旧版本兼容）
+        Module.locateFilePackage = Module.locateFilePackage || Module.locateFile;
+      })();
+    </script>
     <script src="./libs/mediapipe/camera_utils.js"></script>
     <script src="./libs/mediapipe/hands.js"></script>
     <script src="./libs/mediapipe/hands_solution_packed_assets_loader.js"></script>

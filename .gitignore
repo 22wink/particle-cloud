@@ -27,6 +27,3 @@ pnpm-debug.log*
 # Environment
 .env
 .env.local
-
-# Github
-./github
