@@ -24,12 +24,12 @@
         var lastSlash = pathname.lastIndexOf('/');
         var basePath = lastSlash >= 0 ? pathname.substring(0, lastSlash + 1) : '/';
         
-        // 确保 Module 对象在全局作用域中存在（使用 window.Module 确保全局访问）
-        if (typeof window.Module === 'undefined') {
-          window.Module = {};
-        }
-        // 同时设置 Module（某些脚本可能直接访问 Module）
+        // 立即创建全局 Module 对象（不使用 window.Module，直接使用 Module）
+        window.Module = window.Module || {};
+        // 确保 Module 在全局作用域中（不使用 var，直接赋值）
         if (typeof Module === 'undefined') {
+          this.Module = window.Module;
+        } else {
           Module = window.Module;
         }
         
@@ -46,22 +46,46 @@
           return fullPath;
         };
         
-        // 同时设置到 window.Module 和 Module
-        window.Module.locateFile = locateFileFunc;
+        // 直接设置到全局 Module（不使用 window.Module）
         Module.locateFile = locateFileFunc;
-        
-        // 设置 locateFilePackage（旧版本兼容）
-        window.Module.locateFilePackage = locateFileFunc;
         Module.locateFilePackage = locateFileFunc;
+        window.Module = Module;
         
+        // 验证设置
         console.log('[MediaPipe] Module.locateFile configured, basePath:', basePath);
-        console.log('[MediaPipe] Module.locateFile function:', typeof Module.locateFile);
+        console.log('[MediaPipe] Module object:', typeof Module);
+        console.log('[MediaPipe] Module.locateFile:', typeof Module.locateFile);
+        console.log('[MediaPipe] window.Module.locateFile:', typeof window.Module.locateFile);
+        
+        // 测试调用
+        var testPath = Module.locateFile('test.data', '');
+        console.log('[MediaPipe] Test locateFile call:', testPath);
+      })();
+    </script>
+    <script>
+      // 在加载 MediaPipe 脚本前再次验证 Module.locateFile
+      (function() {
+        if (typeof Module === 'undefined' || typeof Module.locateFile !== 'function') {
+          console.error('[MediaPipe] ERROR: Module.locateFile not set before loading scripts!');
+        } else {
+          console.log('[MediaPipe] Module.locateFile verified before loading scripts');
+        }
       })();
     </script>
     <script src="./libs/mediapipe/camera_utils.js"></script>
     <script src="./libs/mediapipe/hands.js"></script>
     <script src="./libs/mediapipe/hands_solution_packed_assets_loader.js"></script>
     <script src="./libs/mediapipe/hands_solution_simd_wasm_bin.js"></script>
+    <script>
+      // 加载后验证
+      (function() {
+        console.log('[MediaPipe] After loading scripts, Module.locateFile:', typeof Module !== 'undefined' && typeof Module.locateFile);
+        if (typeof Module !== 'undefined' && Module.locateFile) {
+          var test = Module.locateFile('test.data', '');
+          console.log('[MediaPipe] Test after load:', test);
+        }
+      })();
+    </script>
     <script type="module" src="./main.js"></script>
   </body>
 </html>
