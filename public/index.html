@@ -75,14 +75,37 @@
     <script src="./libs/mediapipe/camera_utils.js"></script>
     <script src="./libs/mediapipe/hands.js"></script>
     <script src="./libs/mediapipe/hands_solution_packed_assets_loader.js"></script>
+    <script>
+      // 在 hands_solution_packed_assets_loader.js 加载后立即重新设置 Module.locateFile
+      // 因为该脚本会重新定义 Module 对象，覆盖我们的设置
+      (function() {
+        var pathname = window.location.pathname;
+        var lastSlash = pathname.lastIndexOf('/');
+        var basePath = lastSlash >= 0 ? pathname.substring(0, lastSlash + 1) : '/';
+        
+        // 重新设置 locateFile（hands_solution_packed_assets_loader.js 会重新定义 Module）
+        if (typeof Module !== 'undefined') {
+          Module.locateFile = function(file, prefix) {
+            if (file.indexOf('libs/mediapipe/') === 0) {
+              return basePath + file;
+            }
+            var fullPath = basePath + 'libs/mediapipe/' + file;
+            console.log('[MediaPipe] locateFile called (after script load):', file, '->', fullPath);
+            return fullPath;
+          };
+          Module.locateFilePackage = Module.locateFile;
+          console.log('[MediaPipe] Module.locateFile re-configured after hands_solution_packed_assets_loader.js');
+        }
+      })();
+    </script>
     <script src="./libs/mediapipe/hands_solution_simd_wasm_bin.js"></script>
     <script>
-      // 加载后验证
+      // 最终验证
       (function() {
-        console.log('[MediaPipe] After loading scripts, Module.locateFile:', typeof Module !== 'undefined' && typeof Module.locateFile);
+        console.log('[MediaPipe] Final check - Module.locateFile:', typeof Module !== 'undefined' && typeof Module.locateFile);
         if (typeof Module !== 'undefined' && Module.locateFile) {
           var test = Module.locateFile('test.data', '');
-          console.log('[MediaPipe] Test after load:', test);
+          console.log('[MediaPipe] Final test:', test);
         }
       })();
     </script>
