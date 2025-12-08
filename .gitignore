@@ -5,9 +5,6 @@ node_modules/
 # Certificates (auto-generated)
 certs/
 
-# Build outputs (will be generated in CI)
-public/libs/
-
 # IDE
 .vscode/
 .idea/

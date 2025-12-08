@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
     <title>手势星云爱心</title>
     <link rel="stylesheet" href="./styles.css" />
-    <base href="./" />
   </head>
   <body>
     <div id="overlay">
@@ -21,11 +20,19 @@
         if (typeof Module === 'undefined') {
           window.Module = {};
         }
+        // 获取基础路径（处理 GitHub Pages 子路径）
+        const getBasePath = function() {
+          const pathname = window.location.pathname;
+          // 移除文件名，保留目录路径
+          const lastSlash = pathname.lastIndexOf('/');
+          return lastSlash >= 0 ? pathname.substring(0, lastSlash + 1) : '/';
+        };
+        
         // 设置 locateFile 函数，确保资源文件路径正确
-        Module.locateFile = Module.locateFile || function(file, prefix) {
-          // 获取当前页面的基础路径
-          const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-          return basePath + 'libs/mediapipe/' + file;
+        Module.locateFile = function(file, prefix) {
+          const basePath = getBasePath();
+          const fullPath = basePath + 'libs/mediapipe/' + file;
+          return fullPath;
         };
         // 设置 locateFilePackage（旧版本兼容）
         Module.locateFilePackage = Module.locateFilePackage || Module.locateFile;
