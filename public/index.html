@@ -16,26 +16,35 @@
     <div id="webgl-container"></div>
     <script>
       // 设置 MediaPipe 资源路径（必须在所有 MediaPipe 脚本之前）
+      // 确保在全局作用域中设置，让所有脚本都能访问
       (function() {
+        // 获取基础路径（处理 GitHub Pages 子路径）
+        var pathname = window.location.pathname;
+        var lastSlash = pathname.lastIndexOf('/');
+        var basePath = lastSlash >= 0 ? pathname.substring(0, lastSlash + 1) : '/';
+        
+        // 确保 Module 对象在全局作用域中存在
         if (typeof Module === 'undefined') {
           window.Module = {};
         }
-        // 获取基础路径（处理 GitHub Pages 子路径）
-        const getBasePath = function() {
-          const pathname = window.location.pathname;
-          // 移除文件名，保留目录路径
-          const lastSlash = pathname.lastIndexOf('/');
-          return lastSlash >= 0 ? pathname.substring(0, lastSlash + 1) : '/';
-        };
         
         // 设置 locateFile 函数，确保资源文件路径正确
+        // 这个函数会被 hands_solution_packed_assets_loader.js 调用
         Module.locateFile = function(file, prefix) {
-          const basePath = getBasePath();
-          const fullPath = basePath + 'libs/mediapipe/' + file;
+          // 如果文件已经在 libs/mediapipe/ 路径中，直接使用
+          if (file.indexOf('libs/mediapipe/') === 0) {
+            return basePath + file;
+          }
+          // 否则添加 libs/mediapipe/ 前缀
+          var fullPath = basePath + 'libs/mediapipe/' + file;
+          console.log('[MediaPipe] locateFile:', file, '->', fullPath);
           return fullPath;
         };
+        
         // 设置 locateFilePackage（旧版本兼容）
         Module.locateFilePackage = Module.locateFilePackage || Module.locateFile;
+        
+        console.log('[MediaPipe] Module.locateFile configured, basePath:', basePath);
       })();
     </script>
     <script src="./libs/mediapipe/camera_utils.js"></script>
