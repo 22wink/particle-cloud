@@ -161,7 +161,22 @@
         };
         
         Promise.all([
-          checkFile(basePath + 'libs/OrbitControls.js', 'OrbitControls.js'),
+          checkFile(basePath + 'libs/OrbitControls.js', 'OrbitControls.js').then(r => {
+            // 额外检查 OrbitControls.js 的内容
+            return fetch(basePath + 'libs/OrbitControls.js')
+              .then(r => r.text())
+              .then(text => {
+                var lines = text.split('\n');
+                console.log('[File Check] OrbitControls.js total lines:', lines.length);
+                console.log('[File Check] OrbitControls.js line 1:', lines[0]);
+                console.log('[File Check] OrbitControls.js line 2:', lines[1]);
+                console.log('[File Check] OrbitControls.js line 12:', lines[11]);
+                if (lines[11] && lines[11].includes('import')) {
+                  console.error('[File Check] WARNING: Line 12 contains import!');
+                  console.error('[File Check] Full line 12:', lines[11]);
+                }
+              });
+          }),
           checkFile(basePath + 'libs/three.module.js', 'three.module.js'),
           checkFile(basePath + 'main.js', 'main.js')
         ]).then(() => {
