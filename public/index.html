@@ -72,6 +72,29 @@
         }
       })();
     </script>
+    <script>
+      // 关键：在 hands_solution_packed_assets_loader.js 加载前设置 createMediapipeSolutionsPackedAssets
+      // 因为该脚本会检查 createMediapipeSolutionsPackedAssets 并使用它来创建 Module
+      (function() {
+        var pathname = window.location.pathname;
+        var lastSlash = pathname.lastIndexOf('/');
+        var basePath = lastSlash >= 0 ? pathname.substring(0, lastSlash + 1) : '/';
+        
+        // 创建 createMediapipeSolutionsPackedAssets 对象，包含 locateFile
+        window.createMediapipeSolutionsPackedAssets = window.createMediapipeSolutionsPackedAssets || {};
+        window.createMediapipeSolutionsPackedAssets.locateFile = function(file, prefix) {
+          if (file.indexOf('libs/mediapipe/') === 0) {
+            return basePath + file;
+          }
+          var fullPath = basePath + 'libs/mediapipe/' + file;
+          console.log('[MediaPipe] locateFile called (via createMediapipeSolutionsPackedAssets):', file, '->', fullPath);
+          return fullPath;
+        };
+        window.createMediapipeSolutionsPackedAssets.locateFilePackage = window.createMediapipeSolutionsPackedAssets.locateFile;
+        
+        console.log('[MediaPipe] createMediapipeSolutionsPackedAssets configured');
+      })();
+    </script>
     <script src="./libs/mediapipe/camera_utils.js"></script>
     <script src="./libs/mediapipe/hands.js"></script>
     <script src="./libs/mediapipe/hands_solution_packed_assets_loader.js"></script>
