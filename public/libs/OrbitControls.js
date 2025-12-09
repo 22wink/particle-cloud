@@ -1,17 +1,5 @@
 import * as THREE from './three.module.js';
-const {
-	Controls,
-	MOUSE,
-	Quaternion,
-	Spherical,
-	TOUCH,
-	Vector2,
-	Vector3,
-	Plane,
-	Ray,
-	MathUtils
-} = THREE;
-
+const { Controls, MOUSE, Quaternion, Spherical, TOUCH, Vector2, Vector3, Plane, Ray, MathUtils } = THREE;
 /**
  * Fires when the camera has been transformed by the controls.
  *

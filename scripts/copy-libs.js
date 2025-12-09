@@ -74,11 +74,18 @@ async function patchOrbitControlsImport() {
     path.join(root, 'public/libs/OrbitControls.module.js'),
   ];
 
+  const newHeader =
+    "import * as THREE from './three.module.js';\n" +
+    'const { Controls, MOUSE, Quaternion, Spherical, TOUCH, Vector2, Vector3, Plane, Ray, MathUtils } = THREE;';
+
   for (const target of targetsToPatch) {
     try {
       let content = await fs.readFile(target, 'utf8');
-      // 将裸模块导入替换为本地 three.module.js
-      content = content.replace(/from ['"]three['"];?/, "import * as THREE from './three.module.js';\nconst { Controls, MOUSE, Quaternion, Spherical, TOUCH, Vector2, Vector3, Plane, Ray, MathUtils } = THREE;");
+      // 直接重写开头的 three 导入，避免重复 “import { ... } import ...” 结构
+      content = content.replace(
+        /import\s*\{[\s\S]*?\}\s*from\s*['"]three['"];\s*/m,
+        `${newHeader}\n`
+      );
       await fs.writeFile(target, content, 'utf8');
       console.log(`Patched OrbitControls import in ${path.basename(target)}`);
     } catch (err) {
