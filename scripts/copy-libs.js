@@ -17,6 +17,10 @@ const targets = [
     to: path.join(root, 'public/libs/OrbitControls.js'),
   },
   {
+    from: path.join(root, 'node_modules/three/examples/jsm/controls/OrbitControls.js'),
+    to: path.join(root, 'public/libs/OrbitControls.module.js'),
+  },
+  {
     from: path.join(root, 'node_modules/@mediapipe/camera_utils/camera_utils.js'),
     to: path.join(root, 'public/libs/mediapipe/camera_utils.js'),
   },
@@ -65,14 +69,21 @@ async function copyAsset(entry) {
 }
 
 async function patchOrbitControlsImport() {
-  const target = path.join(root, 'public/libs/OrbitControls.js');
-  try {
-    let content = await fs.readFile(target, 'utf8');
-    // 确保使用本地 three.module.js，避免浏览器解析裸模块
-    content = content.replace(/from ['"]three['"];?/, "import * as THREE from './three.module.js';\nconst { Controls, MOUSE, Quaternion, Spherical, TOUCH, Vector2, Vector3, Plane, Ray, MathUtils } = THREE;");
-    await fs.writeFile(target, content, 'utf8');
-  } catch (err) {
-    console.warn('补丁 OrbitControls 失败:', err?.message || err);
+  const targetsToPatch = [
+    path.join(root, 'public/libs/OrbitControls.js'),
+    path.join(root, 'public/libs/OrbitControls.module.js'),
+  ];
+
+  for (const target of targetsToPatch) {
+    try {
+      let content = await fs.readFile(target, 'utf8');
+      // 将裸模块导入替换为本地 three.module.js
+      content = content.replace(/from ['"]three['"];?/, "import * as THREE from './three.module.js';\nconst { Controls, MOUSE, Quaternion, Spherical, TOUCH, Vector2, Vector3, Plane, Ray, MathUtils } = THREE;");
+      await fs.writeFile(target, content, 'utf8');
+      console.log(`Patched OrbitControls import in ${path.basename(target)}`);
+    } catch (err) {
+      console.warn(`补丁 OrbitControls 失败 (${target}):`, err?.message || err);
+    }
   }
 }
 

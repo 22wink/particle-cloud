@@ -1,5 +1,5 @@
 import * as THREE from './libs/three.module.js';
-import { OrbitControls } from './libs/OrbitControls.js';
+import { OrbitControls } from './libs/OrbitControls.module.js';
 
 const container = document.getElementById('webgl-container');
 const statusEl = document.getElementById('status');
